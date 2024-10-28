@@ -1,0 +1,84 @@
+apiVersion: spark.stackable.tech/v1alpha1
+kind: SparkApplication
+metadata:
+  name: telemetry-generator
+spec:
+  sparkImage:
+    custom: "pulse-telemetry:latest" 
+    productVersion: "3.5.1" 
+    pullPolicy: IfNotPresent
+  mainApplicationFile: local:////pulse-telemetry/src/pulse_telemetry/utils/telemetry_generator.py
+  env:
+    - name: PULSE_TELEMETRY_CATALOG
+      valueFrom:
+        configMapKeyRef:
+          name: telemetry-generator-config
+          key: PULSE_TELEMETRY_CATALOG
+    - name: PULSE_TELEMETRY_DATABASE
+      valueFrom:
+        configMapKeyRef:
+          name: telemetry-generator-config
+          key: PULSE_TELEMETRY_DATABASE
+    - name: PULSE_TELEMETRY_NUM_CHANNELS
+      valueFrom:
+        configMapKeyRef:
+          name: telemetry-generator-config
+          key: PULSE_TELEMETRY_NUM_CHANNELS
+    - name: PULSE_TELEMETRY_TIMEOUT_SECONDS
+      valueFrom:
+        configMapKeyRef:
+          name: telemetry-generator-config
+          key: PULSE_TELEMETRY_TIMEOUT_SECONDS
+    - name: PULSE_TELEMETRY_ACQUISITION_FREQUENCY
+      valueFrom:
+        configMapKeyRef:
+          name: telemetry-generator-config
+          key: PULSE_TELEMETRY_ACQUISITION_FREQUENCY
+    - name: PULSE_TELEMETRY_POINTS_PER_STEP
+      valueFrom:
+        configMapKeyRef:
+          name: telemetry-generator-config
+          key: PULSE_TELEMETRY_POINTS_PER_STEP
+  sparkConf:
+    spark.sql.extensions: org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
+    spark.sql.catalog.lakehouse: org.apache.iceberg.spark.SparkCatalog
+    spark.sql.catalog.lakehouse.type: hive
+    spark.sql.catalog.lakehouse.uri: thrift://hive.default.svc:9083
+    spark.sql.catalog.lakehouse.warehouse: s3a://lakehouse/
+    spark.sql.session.timeZone: UTC
+  deps:
+    packages:
+      - org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.6.1
+      - org.apache.hadoop:hadoop-aws:3.3.4
+  mode: cluster
+  s3connection:
+    reference: minio
+  driver:
+    config:
+      resources:
+        cpu:
+          min: "500m"
+          max: "2"
+        memory:
+          limit: "1Gi"
+  executor:
+    replicas: 1
+    config:
+      resources:
+        cpu:
+          min: "500m"
+          max: "2"
+        memory:
+          limit: "1Gi"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telemetry-generator-config
+data:
+  PULSE_TELEMETRY_CATALOG: "lakehouse"
+  PULSE_TELEMETRY_DATABASE: "dev"
+  PULSE_TELEMETRY_NUM_CHANNELS: "5"
+  PULSE_TELEMETRY_TIMEOUT_SECONDS: "3"
+  PULSE_TELEMETRY_ACQUISITION_FREQUENCY: "10"
+  PULSE_TELEMETRY_POINTS_PER_STEP: "5"
