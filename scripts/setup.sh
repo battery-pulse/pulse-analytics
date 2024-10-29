@@ -130,15 +130,20 @@ launch_spark_application telemetry-generator telemetry-generator.yaml 240
 launch_spark_application telemetry-statistics telemetry-statistics.yaml 240
 
 # Deploy trino service
+echo "Deploying trino..."
 kubectl apply -f trino.yaml
 
 # Deploy superset service
+echo "Deploying superset..."
 helm install --wait superset bitnami/postgresql \
     --set auth.username=superset \
     --set auth.password=superset \
     --set auth.database=superset
 kubectl apply -f superset.yaml
+sleep 20
 kubectl rollout status --watch statefulset/superset-node-default --timeout 300s
 
 # Setup superset service
+echo "Configuring superset..."
+kind load docker-image pulse-analytics:latest --name kind
 kubectl apply -f superset-setup.yaml

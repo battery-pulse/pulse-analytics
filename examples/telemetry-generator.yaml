@@ -4,7 +4,7 @@ metadata:
   name: telemetry-generator
 spec:
   sparkImage:
-    custom: "pulse-telemetry:latest" 
+    custom: "ghcr.io/battery-pulse/pulse-telemetry:latest" 
     productVersion: "3.5.1" 
     pullPolicy: IfNotPresent
   mainApplicationFile: local:////pulse-telemetry/src/pulse_telemetry/utils/telemetry_generator.py
@@ -79,6 +79,6 @@ data:
   PULSE_TELEMETRY_CATALOG: "lakehouse"
   PULSE_TELEMETRY_DATABASE: "dev"
   PULSE_TELEMETRY_NUM_CHANNELS: "5"
-  PULSE_TELEMETRY_TIMEOUT_SECONDS: "3"
+  PULSE_TELEMETRY_TIMEOUT_SECONDS: "30"
   PULSE_TELEMETRY_ACQUISITION_FREQUENCY: "10"
-  PULSE_TELEMETRY_POINTS_PER_STEP: "5"
+  PULSE_TELEMETRY_POINTS_PER_STEP: "10"

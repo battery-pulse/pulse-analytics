@@ -8,8 +8,9 @@ spec:
     spec:
       containers:
         - name: superset-setup
-          image: docker.stackable.tech/stackable/testing-tools:0.2.0-stackable24.7.0
-          command: ["bash", "-c", "curl -o superset-assets.zip https://raw.githubusercontent.com/stackabletech/demos/main/demos/data-lakehouse-iceberg-trino-spark/superset-assets.zip && python -u /tmp/script/script.py"]
+          image: "pulse-analytics:latest"
+          imagePullPolicy: IfNotPresent
+          command: ["bash", "-c", "python -u /tmp/script/script.py"]
           volumeMounts:
             - name: script
               mountPath: /tmp/script

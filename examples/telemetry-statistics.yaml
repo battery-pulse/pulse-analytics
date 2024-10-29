@@ -4,7 +4,7 @@ metadata:
   name: telemetry-statistics
 spec:
   sparkImage:
-    custom: "pulse-telemetry:latest" 
+    custom: "ghcr.io/battery-pulse/pulse-telemetry:latest" 
     productVersion: "3.5.1" 
     pullPolicy: IfNotPresent
   mainApplicationFile: local:////pulse-telemetry/src/pulse_telemetry/apps/telemetry_statistics.py
