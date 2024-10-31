@@ -147,3 +147,6 @@ kubectl rollout status --watch statefulset/superset-node-default --timeout 300s
 echo "Configuring superset..."
 kind load docker-image pulse-analytics:latest --name kind
 kubectl apply -f superset-setup.yaml
+
+# Port-forward to localhost
+kubectl port-forward svc/superset-external 8088:8088

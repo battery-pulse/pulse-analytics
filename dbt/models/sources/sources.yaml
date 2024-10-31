@@ -1,0 +1,30 @@
+version: 2
+
+sources:
+  # Pulse-telemetry tables
+  - name: telemetry_source
+    database: "{{ env_var('DBT_TELEMETRY_CATALOG', 'telemetry') }}"  # Trino catalog for telemetry
+    schema: "{{ env_var('DBT_TELEMETRY_SCHEMA', 'harmonized') }}"
+    tables:
+      - name: telemetry
+        identifier: "{{ env_var('DBT_TELEMETRY_TABLE', 'telemetry') }}"
+
+      - name: statistics_step
+        identifier: "{{ env_var('DBT_STATISTICS_STEP_TABLE', 'statistics_step') }}"
+
+      - name: statistics_cycle
+        identifier: "{{ env_var('DBT_STATISTICS_CYCLE_TABLE', 'statistics_cycle') }}"
+
+  # Metadata tables
+  - name: metadata_source
+    database: "{{ env_var('DBT_METADATA_CATALOG', 'postgres') }}"  # Trino catalog for postgres
+    schema: "{{ env_var('DBT_METADATA_SCHEMA', 'public') }}"
+    tables:
+      - name: device_metadata
+        identifier: "{{ env_var('DBT_DEVICE_METADATA_TABLE', 'device_metadata') }}"
+
+      - name: part_metadata
+        identifier: "{{ env_var('DBT_PART_METADATA_TABLE', 'part_metadata') }}"
+
+      - name: device_part_tests
+        identifier: "{{ env_var('DBT_DEVICE_PART_TESTS_TABLE', 'device_part_tests') }}"

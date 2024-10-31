@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbt-config
+data:
+  # Trino Configuration for dbt targets
+  TRINO_HOST: "trino-host"
+  TRINO_PORT: "8080"
+  TRINO_USER: "trino_user"
+  TRINO_CATALOG: "analytics"  # Default catalog for dbt targets
+
+  # Source catalog, schema, and tables
+  DBT_TELEMETRY_CATALOG: "telemetry"
+  DBT_TELEMETRY_SCHEMA: "harmonized"
+  DBT_TELEMETRY_TABLE: "telemetry"
+  DBT_STATISTICS_STEP_TABLE: "statistics_step"
+  DBT_STATISTICS_CYCLE_TABLE: "statistics_cycle"
+  
+  DBT_METADATA_CATALOG: "postgres"
+  DBT_METADATA_SCHEMA: "public"
+  DBT_DEVICE_METADATA_TABLE: "device_metadata"
+  DBT_PART_METADATA_TABLE: "part_metadata"
+  DBT_DEVICE_PART_TESTS_TABLE: "device_part_tests"  # Junction table

@@ -1,0 +1,21 @@
+name: 'pulse_analytics'
+version: '0.1.0'
+
+# Link to the profile in profiles.yml
+profile: 'pulse_analytics'
+config-version: 2
+
+# Define only the models directory
+source-paths: ["models"]  # Main models directory
+
+# Target path for compiled files and run artifacts
+target-path: "target"
+clean-targets: ["target", "dbt_modules"]
+
+# Basic model organization
+models:
+  pulse_analytics:
+    sources:
+      +schema: "sources"
+    marts:
+      +schema: "marts"
