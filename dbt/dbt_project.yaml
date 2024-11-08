@@ -16,6 +16,4 @@ clean-targets: ["target", "dbt_modules"]
 models:
   pulse_analytics:
     sources:
-      +schema: "sources"
     marts:
-      +schema: "marts"
