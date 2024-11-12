@@ -106,16 +106,16 @@ def metadata_sources(statistics_cycle_first, statistics_cycle_second):
     first_parts = list(range(len(first_tests)))
     first_df = pd.DataFrame({
         "device_id": first_devices,
-        "part_id": first_parts,
         "test_id": first_tests,
+        "part_id": first_parts,
     })
     second_devices = statistics_cycle_second["device_id"].unique()
     second_tests = statistics_cycle_second["test_id"].unique()
     second_parts = list(range(len(second_tests)))
     second_df = pd.DataFrame({
         "device_id": second_devices,
-        "part_id": second_parts,
         "test_id": second_tests,
+        "part_id": second_parts,
     })
     device_part_tests = pd.concat([first_df, second_df], ignore_index=True)
     # device-metadata
@@ -132,7 +132,7 @@ def metadata_sources(statistics_cycle_first, statistics_cycle_second):
 def seed_duckdb():
     conn = duckdb.connect(database=os.environ["DUCKDB_PATH"])
     cursor = conn.cursor()
-    # First set of tests (five parts)
+    # First set of tests (five parts put onto test)
     telemetry_df, statistics_step_df, statistics_cycle_df = telemetry_sources(num_channels=5)
     cursor.execute("CREATE SCHEMA IF NOT EXISTS telemetry")
     cursor.execute("CREATE TABLE telemetry.telemetry AS SELECT * FROM telemetry_df")
@@ -180,8 +180,8 @@ def launch_dbt(dbt_target, seed_database):
     yield
 
 
-# Sets up database connection for tests
-# You can use "execute" and "fetchall" methods
+# Sets up database connection for individual tests
+# "execute" and "fetchall" are supported by both duckdb and trino
 
 @pytest.fixture(scope="session")
 def database_cursor(dbt_target, launch_dbt):
