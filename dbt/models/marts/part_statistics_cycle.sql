@@ -3,7 +3,7 @@
 ) }}
 
 
-statistics_step_with_part AS (
+WITH statistics_cycle_with_part AS (
     -- Join statistics_cycle records with device_part_tests to add part_id and part_metadata
     SELECT
         dpt.part_id,
@@ -27,6 +27,6 @@ ordered_statistics_cycle AS (
 
 -- Final output
 SELECT 
-    cycle_numbered.*,  -- Select all columns from cycle_numbered
+    *,  -- Select all columns from cycle_numbered
     new_cycle_number AS cycle_number,    -- Overwrite cycle_number with new_cycle_number
 FROM ordered_statistics_cycle

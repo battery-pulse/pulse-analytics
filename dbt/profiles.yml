@@ -10,6 +10,6 @@ pulse_analytics:
     duckdb:
       type: duckdb
       path: "{{ env_var('DUCKDB_PATH', 'test_data.duckdb') }}"
-      schema: "{{ env_var('DUCKDB_SCHEMA', 'main') }}"
+      schema: "{{ env_var('DUCKDB_TARGET_SCHEMA', 'main') }}"
 
   target: "{{ env_var('DBT_TARGET', 'duckdb') }}"  # Default target is duckdb

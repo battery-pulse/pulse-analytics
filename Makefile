@@ -22,11 +22,11 @@ test-format:
 
 .PHONY: test-integration
 test-integration:
-	pytest tests/
+	pytest tests/ --dbt-target=duckdb
 
 .PHONY: test-e2e
 test-e2e:
-	pytest tests/
+	pytest tests/ --dbt-target=trino
 
 .PHONY: docker-image
 docker-image:
