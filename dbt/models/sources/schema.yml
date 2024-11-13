@@ -3,11 +3,11 @@ version: 2
 sources:
   # Pulse-telemetry tables
   - name: telemetry_source
-    database: "{{ env_var('DBT_TELEMETRY_CATALOG', 'telemetry') }}"  # Trino catalog for telemetry
-    schema: "{{ env_var('DBT_TELEMETRY_SCHEMA', 'standard') }}"
+    database: "{{ env_var('PULSE_ANALYTICS_TELEMETRY_CATALOG') }}"
+    schema: "{{ env_var('PULSE_ANALYTICS_TELEMETRY_SCHEMA') }}"
     tables:
       - name: telemetry
-        identifier: "{{ env_var('DBT_TELEMETRY_TABLE', 'telemetry') }}"
+        identifier: "{{ env_var('PULSE_ANALYTICS_TELEMETRY_TABLE') }}"
         description: "Individual records of telemetry data"
         columns:
           - name: device_id
@@ -36,7 +36,7 @@ sources:
               - not_null
 
       - name: statistics_step
-        identifier: "{{ env_var('DBT_STATISTICS_STEP_TABLE', 'statistics_step') }}"
+        identifier: "{{ env_var('PULSE_ANALYTICS_STATISTICS_STEP_TABLE') }}"
         description: "Step-level statistics for telemetry data"
         columns:
           - name: device_id
@@ -61,7 +61,7 @@ sources:
               - not_null
 
       - name: statistics_cycle
-        identifier: "{{ env_var('DBT_STATISTICS_CYCLE_TABLE', 'statistics_cycle') }}"
+        identifier: "{{ env_var('PULSE_ANALYTICS_STATISTICS_CYCLE_TABLE') }}"
         description: "Cycle-level statistics for telemetry data"
         columns:
           - name: device_id
@@ -83,11 +83,11 @@ sources:
 
   # Metadata tables
   - name: metadata_source
-    database: "{{ env_var('DBT_METADATA_CATALOG', 'postgres') }}"  # Trino catalog for postgres
-    schema: "{{ env_var('DBT_METADATA_SCHEMA', 'public') }}"
+    database: "{{ env_var('PULSE_ANALYTICS_METADATA_CATALOG') }}"
+    schema: "{{ env_var('PULSE_ANALYTICS_METADATA_SCHEMA') }}"
     tables:
       - name: device_metadata
-        identifier: "{{ env_var('DBT_DEVICE_METADATA_TABLE', 'device_metadata') }}"
+        identifier: "{{ env_var('PULSE_ANALYTICS_DEVICE_METADATA_TABLE') }}"
         description: "Metadata for each test device"
         columns:
           - name: device_id
@@ -97,7 +97,7 @@ sources:
               - unique
 
       - name: part_metadata
-        identifier: "{{ env_var('DBT_PART_METADATA_TABLE', 'part_metadata') }}"
+        identifier: "{{ env_var('PULSE_ANALYTICS_PART_METADATA_TABLE') }}"
         description: "Metadata for each part under test"
         columns:
           - name: part_id
@@ -107,7 +107,7 @@ sources:
               - unique
 
       - name: device_part_tests
-        identifier: "{{ env_var('DBT_DEVICE_PART_TESTS_TABLE', 'device_part_tests') }}"
+        identifier: "{{ env_var('PULSE_ANALYTICS_DEVICE_PART_TESTS_TABLE') }}"
         description: "Links tests to parts under test"
         columns:
           - name: device_id

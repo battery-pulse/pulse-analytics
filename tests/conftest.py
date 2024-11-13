@@ -40,20 +40,20 @@ def dbt_target(request):
 
 def duckdb_environment():
     # catalog and target schema
-    os.environ["DUCKDB_PATH"] = os.path.join(current_dir, "test.duckdb")  # 'test' is the catalog
-    os.environ["DUCKDB_TARGET_SCHEMA"] = "analytics"
+    os.environ["PULSE_ANALYTICS_DUCKDB_PATH"] = os.path.join(current_dir, "test.duckdb")  # 'test' is the catalog
+    os.environ["PULSE_ANALYTICS_TARGET_SCHEMA"] = "analytics"
     # telemetry source
-    os.environ["DBT_TELEMETRY_CATALOG"] = "test"
-    os.environ["DBT_TELEMETRY_SCHEMA"] = "telemetry"
-    os.environ["DBT_TELEMETRY_TABLE"] = "telemetry"
-    os.environ["DBT_STATISTICS_STEP_TABLE"] = "statistics_step"
-    os.environ["DBT_STATISTICS_CYCLE_TABLE"] = "statistics_cycle"
+    os.environ["PULSE_ANALYTICS_TELEMETRY_CATALOG"] = "test"
+    os.environ["PULSE_ANALYTICS_TELEMETRY_SCHEMA"] = "telemetry"
+    os.environ["PULSE_ANALYTICS_TELEMETRY_TABLE"] = "telemetry"
+    os.environ["PULSE_ANALYTICS_STATISTICS_STEP_TABLE"] = "statistics_step"
+    os.environ["PULSE_ANALYTICS_STATISTICS_CYCLE_TABLE"] = "statistics_cycle"
     # metadata source
-    os.environ["DBT_METADATA_CATALOG"] = "test"
-    os.environ["DBT_METADATA_SCHEMA"] = "metadata"
-    os.environ["DBT_DEVICE_METADATA_TABLE"] = "device_metadata"
-    os.environ["DBT_PART_METADATA_TABLE"] = "part_metadata"
-    os.environ["DBT_DEVICE_PART_TESTS_TABLE"] = "device_part_tests"
+    os.environ["PULSE_ANALYTICS_METADATA_CATALOG"] = "test"
+    os.environ["PULSE_ANALYTICS_METADATA_SCHEMA"] = "metadata"
+    os.environ["PULSE_ANALYTICS_DEVICE_METADATA_TABLE"] = "device_metadata"
+    os.environ["PULSE_ANALYTICS_PART_METADATA_TABLE"] = "part_metadata"
+    os.environ["PULSE_ANALYTICS_DEVICE_PART_TESTS_TABLE"] = "device_part_tests"
 
 
 def trino_environment():
@@ -67,7 +67,7 @@ def setup_environment(dbt_target):
         case "duckdb":
             duckdb_environment()
             yield
-            duckdb_path = os.environ["DUCKDB_PATH"]
+            duckdb_path = os.environ["PULSE_ANALYTICS_DUCKDB_PATH"]
             if os.path.exists(duckdb_path):
                 os.remove(duckdb_path)
         case "trino":
@@ -135,7 +135,7 @@ def metadata_sources(statistics_cycle_first, statistics_cycle_second):
 
 
 def seed_duckdb():
-    conn = duckdb.connect(database=os.environ["DUCKDB_PATH"])
+    conn = duckdb.connect(database=os.environ["PULSE_ANALYTICS_DUCKDB_PATH"])
     cursor = conn.cursor()
     # First set of tests (five parts put onto test)
     telemetry_df, statistics_step_df, statistics_cycle_df = telemetry_sources(num_channels=5)
@@ -196,7 +196,7 @@ def launch_dbt(dbt_target, seed_database):
 def database_cursor(dbt_target, launch_dbt):
     match dbt_target:
         case "duckdb":
-            conn = duckdb.connect(database=os.environ["DUCKDB_PATH"])
+            conn = duckdb.connect(database=os.environ["PULSE_ANALYTICS_DUCKDB_PATH"])
             yield conn.cursor()
             conn.close()
         case "trino":

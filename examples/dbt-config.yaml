@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbt-config
+data:
+  # Trino connection
+  PULSE_ANALYTICS_TRINO_HOST: "trino-host"
+  PULSE_ANALYTICS_TRINO_PORT: "8080"
+  PULSE_ANALYTICS_TRINO_USER: "trino_user"
+
+  # Target catalog
+  PULSE_ANALYTICS_TARGET_CATALOG: "analytics"
+  PULSE_ANALYTICS_TARGET_SCHEMA: "dev"
+
+  # Telemetry sources
+  PULSE_ANALYTICS_TELEMETRY_CATALOG: "telemetry"
+  PULSE_ANALYTICS_TELEMETRY_SCHEMA: "dev"
+  PULSE_ANALYTICS_TELEMETRY_TABLE: "telemetry"
+  PULSE_ANALYTICS_STATISTICS_STEP_TABLE: "statistics_step"
+  PULSE_ANALYTICS_STATISTICS_CYCLE_TABLE: "statistics_cycle"
+
+  # Metadata sources
+  PULSE_ANALYTICS_METADATA_CATALOG: "metadata"
+  PULSE_ANALYTICS_METADATA_SCHEMA: "dev"
+  PULSE_ANALYTICS_DEVICE_METADATA_TABLE: "device_metadata"
+  PULSE_ANALYTICS_PART_METADATA_TABLE: "part_metadata"
+  PULSE_ANALYTICS_DEVICE_PART_TESTS_TABLE: "device_part_tests"
