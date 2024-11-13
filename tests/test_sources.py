@@ -1,7 +1,7 @@
 import pytest
 
 
-source_views = [
+source_views = [  # source, view
     ("telemetry.telemetry", "analytics.telemetry"),
     ("telemetry.statistics_step", "analytics.statistics_step"),
     ("telemetry.statistics_cycle", "analytics.statistics_cycle"),

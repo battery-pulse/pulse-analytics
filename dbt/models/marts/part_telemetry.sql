@@ -21,48 +21,43 @@ ordered_telemetry AS (
     -- Sort by timestamp and record_number, partitioning by part_id
     SELECT
         *,
-        ROW_NUMBER() OVER (PARTITION BY part_id ORDER BY timestamp, record_number) AS new_record_number
+        ROW_NUMBER() OVER (PARTITION BY part_id ORDER BY timestamp, record_number) AS part_record_number
     FROM telemetry_with_part
-),
-
-lagged_cycle AS (
-    -- Calculate LAG for cycle_number without nesting
-    SELECT
-        *,
-        LAG(cycle_number) OVER (PARTITION BY part_id ORDER BY new_record_number) AS prev_cycle_number
-    FROM ordered_telemetry
-),
-
-cycle_numbered AS (
-    -- Calculate the new_cycle_number based on changes in cycle_number
-    SELECT
-        *,
-        SUM(CASE WHEN prev_cycle_number != cycle_number THEN 1 ELSE 0 END) 
-        OVER (PARTITION BY part_id ORDER BY new_record_number) + 1 AS new_cycle_number
-    FROM lagged_cycle
 ),
 
 lagged_step AS (
     -- Calculate LAG for step_number without nesting
     SELECT
         *,
-        LAG(step_number) OVER (PARTITION BY part_id ORDER BY new_record_number) AS prev_step_number
-    FROM cycle_numbered
+        LAG(step_number) OVER (PARTITION BY part_id ORDER BY part_record_number) AS prev_step_number
+    FROM ordered_telemetry
 ),
 
 step_numbered AS (
-    -- Calculate the new_step_number based on changes in step_number
+    -- Calculate the part_step_number based on changes in step_number
     SELECT
         *,
         SUM(CASE WHEN prev_step_number != step_number THEN 1 ELSE 0 END) 
-        OVER (PARTITION BY part_id ORDER BY new_record_number) + 1 AS new_step_number
+        OVER (PARTITION BY part_id ORDER BY part_record_number) + 1 AS part_step_number
     FROM lagged_step
+),
+
+lagged_cycle AS (
+    -- Calculate LAG for cycle_number without nesting
+    SELECT
+        *,
+        LAG(cycle_number) OVER (PARTITION BY part_id ORDER BY part_record_number) AS prev_cycle_number
+    FROM step_numbered
+),
+
+cycle_numbered AS (
+    -- Calculate the part_cycle_number based on changes in cycle_number
+    SELECT
+        *,
+        SUM(CASE WHEN prev_cycle_number != cycle_number THEN 1 ELSE 0 END) 
+        OVER (PARTITION BY part_id ORDER BY part_record_number) + 1 AS part_cycle_number
+    FROM lagged_cycle
 )
 
--- Final output with explicit column selection
-SELECT 
-    *,  -- Select all columns from step_numbered
-    new_cycle_number AS cycle_number,    -- Rename new_cycle_number to cycle_number
-    new_step_number AS step_number,      -- Rename new_step_number to step_number
-    new_record_number AS record_number   -- Rename new_record_number to record_number
-FROM step_numbered
+-- Final output
+SELECT * FROM cycle_numbered

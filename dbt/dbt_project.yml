@@ -1,8 +1,8 @@
-name: 'pulse_analytics'
-version: '0.1.0'
+name: "pulse_analytics"
+version: "0.1.0"
 
 # Link to the profile in profiles.yml
-profile: 'pulse_analytics'
+profile: "pulse_analytics"
 config-version: 2
 
 # Define only the models directory

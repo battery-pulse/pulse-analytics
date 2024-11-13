@@ -21,12 +21,9 @@ ordered_statistics_cycle AS (
     -- Sort by start_time and cycle_number, partitioning by part_id
     SELECT
         *,
-        ROW_NUMBER() OVER (PARTITION BY part_id ORDER BY start_time, cycle_number) AS new_cycle_number
+        ROW_NUMBER() OVER (PARTITION BY part_id ORDER BY start_time, cycle_number) AS part_cycle_number
     FROM statistics_cycle_with_part
 )
 
 -- Final output
-SELECT 
-    *,  -- Select all columns from cycle_numbered
-    new_cycle_number AS cycle_number,    -- Overwrite cycle_number with new_cycle_number
-FROM ordered_statistics_cycle
+SELECT * FROM ordered_statistics_cycle

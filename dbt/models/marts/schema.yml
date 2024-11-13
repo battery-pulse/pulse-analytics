@@ -40,15 +40,15 @@ models:
         description: "Unique identifier for each test performed on the part"
         tests:
           - not_null
-      - name: cycle_number
+      - name: part_cycle_number
         description: "Cycle number for the part, reindexed across all tests for the part"
         tests:
           - not_null
-      - name: step_number
+      - name: part_step_number
         description: "Step number for the part, reindexed across all tests for the part"
         tests:
           - not_null
-      - name: record_number
+      - name: part_record_number
         description: "Sequential record number, reindexed across all tests for the part"
         tests:
           - not_null
@@ -64,11 +64,11 @@ models:
         description: "Unique identifier for the part under test"
         tests:
           - not_null
-      - name: cycle_number
+      - name: part_cycle_number
         description: "Cycle number for the part, reindexed across all tests for the part"
         tests:
           - not_null
-      - name: step_number
+      - name: part_step_number
         description: "Step number for the part, reindexed across all tests for the part"
         tests:
           - not_null
@@ -84,7 +84,7 @@ models:
         description: "Unique identifier for the part under test"
         tests:
           - not_null
-      - name: cycle_number
+      - name: part_cycle_number
         description: "Cycle number for the part, reindexed across all tests for the part"
         tests:
           - not_null
