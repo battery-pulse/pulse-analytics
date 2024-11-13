@@ -1,0 +1,102 @@
+[project]
+name = "pulse-analytics"
+description = "Utilities for testing dbt project views and seeding superset assets."
+readme = "README.md"
+authors = [
+    {name = "Maxwell Dylla", email = "maxwell.dylla@gmail.com"},
+]
+dynamic = ["version"]
+dependencies = [
+]
+
+[project.optional-dependencies]
+dev = [
+    "dbt-duckdb==1.9.0",
+    "dbt-trino==1.8.3",
+    "trino==0.330.0",
+    "duckdb==1.1.3",
+    "mypy==1.10.1",
+    "pandas==2.2.3",
+    "pytest==8.2.2",
+    "ruff==0.5.2",
+    "setuptools==75.1.0",
+    "pulse-telemetry==0.1.1",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "pulse_analytics.__version__"}
+
+[tool.ruff]
+include = ["*.py", "*.pyi", "**/pyproject.toml", "*.ipynb"]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    # pyflakes
+    "F",
+    # pycodestyle
+    "E",
+    "W",
+    # flake8-2020
+    "YTT",
+    # flake8-bugbear
+    "B",
+    # flake8-commas
+    "COM",
+    # flake8-datetimez
+    "DTZ",
+    # flake8-quotes
+    "Q",
+    # pylint
+    "PLE", "PLR", "PLW",
+    # misc lints
+    "PIE",
+    # flake8-pyi
+    "PYI",
+    # tidy imports
+    "TID",
+    # implicit string concatenation
+    "ISC",
+    # type-checking imports
+    "TCH",
+    # isort
+    "I",
+    # comprehensions
+    "C4",
+    # pygrep-hooks
+    "PGH",
+    # Ruff-specific rules
+    "RUF",
+    # Upgrade syntax
+    "UP",
+]
+ignore = [
+    # line length, use formatter to get line length approx right
+    "E501",
+    # module level import not at top of file
+    "E402",
+    # too many branches
+    "PLR0912",
+    # too many arguments to function call
+    "PLR0913",
+    # too many statements in function
+    "PLR0915",
+    # magic value used in comparison,
+    "PLR2004",
+    # do not use mutable data structures for argument defaults
+    "B006",
+    # recommended by Ruff to disable to avoid issues with formatter
+    "COM812", "ISC001",
+    # extra rules on documentation strings
+    "D100", "D401", "D203", "D213",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.flake8-type-checking]
+quote-annotations = true
+
+[tool.mypy]
+disable_error_code = "type-var"

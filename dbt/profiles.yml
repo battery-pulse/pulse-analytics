@@ -1,0 +1,15 @@
+pulse_analytics:
+  outputs:
+    trino:
+      type: trino
+      host: "{{ env_var('TRINO_HOST', 'trino-host') }}"
+      port: "{{ env_var('TRINO_PORT', '8080') }}"
+      user: "{{ env_var('TRINO_USER', 'trino_user') }}"
+      catalog: "{{ env_var('TRINO_CATALOG', 'analytics') }}"  # Default catalog in Trino
+
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', 'test_data.duckdb') }}"
+      schema: "{{ env_var('DUCKDB_TARGET_SCHEMA', 'main') }}"
+
+  target: "{{ env_var('DBT_TARGET', 'duckdb') }}"  # Default target is duckdb

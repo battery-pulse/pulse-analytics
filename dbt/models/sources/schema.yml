@@ -1,0 +1,124 @@
+version: 2
+
+sources:
+  # Pulse-telemetry tables
+  - name: telemetry_source
+    database: "{{ env_var('DBT_TELEMETRY_CATALOG', 'telemetry') }}"  # Trino catalog for telemetry
+    schema: "{{ env_var('DBT_TELEMETRY_SCHEMA', 'standard') }}"
+    tables:
+      - name: telemetry
+        identifier: "{{ env_var('DBT_TELEMETRY_TABLE', 'telemetry') }}"
+        description: "Individual records of telemetry data"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+          - name: test_id
+            description: "Unique identifier for each test"
+            tests:
+              - not_null
+          - name: cycle_number
+            description: "Cycle number within a test sequence"
+            tests:
+              - not_null
+          - name: step_number
+            description: "Step number within a test sequence"
+            tests:
+              - not_null
+          - name: record_number
+            description: "Record number within a test sequence"
+            tests:
+              - not_null
+          - name: timestamp
+            description: "Timestamp for the telemetry record"
+            tests:
+              - not_null
+
+      - name: statistics_step
+        identifier: "{{ env_var('DBT_STATISTICS_STEP_TABLE', 'statistics_step') }}"
+        description: "Step-level statistics for telemetry data"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+          - name: test_id
+            description: "Unique identifier for each test"
+            tests:
+              - not_null
+          - name: cycle_number
+            description: "Cycle number within a test sequence"
+            tests:
+              - not_null
+          - name: step_number
+            description: "Step number within a test sequence"
+            tests:
+              - not_null
+          - name: start_time
+            description: "Start time for the step"
+            tests:
+              - not_null
+
+      - name: statistics_cycle
+        identifier: "{{ env_var('DBT_STATISTICS_CYCLE_TABLE', 'statistics_cycle') }}"
+        description: "Cycle-level statistics for telemetry data"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+          - name: test_id
+            description: "Unique identifier for each test"
+            tests:
+              - not_null
+          - name: cycle_number
+            description: "Cycle number within a test sequence"
+            tests:
+              - not_null
+          - name: start_time
+            description: "Start time for the cycle"
+            tests:
+              - not_null
+
+  # Metadata tables
+  - name: metadata_source
+    database: "{{ env_var('DBT_METADATA_CATALOG', 'postgres') }}"  # Trino catalog for postgres
+    schema: "{{ env_var('DBT_METADATA_SCHEMA', 'public') }}"
+    tables:
+      - name: device_metadata
+        identifier: "{{ env_var('DBT_DEVICE_METADATA_TABLE', 'device_metadata') }}"
+        description: "Metadata for each test device"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+              - unique
+
+      - name: part_metadata
+        identifier: "{{ env_var('DBT_PART_METADATA_TABLE', 'part_metadata') }}"
+        description: "Metadata for each part under test"
+        columns:
+          - name: part_id
+            description: "Unique identifier for each part"
+            tests:
+              - not_null
+              - unique
+
+      - name: device_part_tests
+        identifier: "{{ env_var('DBT_DEVICE_PART_TESTS_TABLE', 'device_part_tests') }}"
+        description: "Links tests to parts under test"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+          - name: test_id
+            description: "Unique identifier for each test"
+            tests:
+              - not_null
+          - name: part_id
+            description: "Unique identifier for each part involved in tests"
+            tests:
+              - not_null
