@@ -64,11 +64,17 @@ def test_part_telemetry(database_cursor):
     for _, i in mart.groupby("part_id"):
         # Case with two tests on a part
         if len(i) == 60:
+            assert min(i["part_cycle_number"]) == 1
+            assert min(i["part_step_number"]) == 1
+            assert min(i["part_record_number"]) == 1
             assert max(i["part_cycle_number"]) == 4
             assert max(i["part_step_number"]) == 12
             assert max(i["part_record_number"]) == 60
         # Case with one test on a part
         elif len(i) == 30:
+            assert min(i["part_cycle_number"]) == 1
+            assert min(i["part_step_number"]) == 1
+            assert min(i["part_record_number"]) == 1
             assert max(i["part_cycle_number"]) == 2
             assert max(i["part_step_number"]) == 6
             assert max(i["part_record_number"]) == 30
@@ -99,10 +105,14 @@ def test_part_statistics_step(database_cursor):
     for _, i in mart.groupby("part_id"):
         # Case with two tests on a part
         if len(i) == 12:
+            assert min(i["part_cycle_number"]) == 1
+            assert min(i["part_step_number"]) == 1
             assert max(i["part_cycle_number"]) == 4
             assert max(i["part_step_number"]) == 12
         # Case with one test on a part
         elif len(i) == 6:
+            assert min(i["part_cycle_number"]) == 1
+            assert min(i["part_step_number"]) == 1
             assert max(i["part_cycle_number"]) == 2
             assert max(i["part_step_number"]) == 6
         else:
@@ -132,9 +142,11 @@ def test_part_statistics_cycle(database_cursor):
     for _, i in mart.groupby("part_id"):
         # Case with two tests on a part
         if len(i) == 4:
+            assert min(i["part_cycle_number"]) == 1
             assert max(i["part_cycle_number"]) == 4
         # Case with one test on a part
         elif len(i) == 2:
+            assert min(i["part_cycle_number"]) == 1
             assert max(i["part_cycle_number"]) == 2
         else:
             raise Exception("Unexpected length of records.")

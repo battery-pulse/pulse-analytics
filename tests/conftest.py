@@ -180,7 +180,10 @@ def launch_dbt(dbt_target, seed_database):
         case "duckdb":
             launch_script_path = os.path.join(scripts_dir, "launch_dbt_local.sh")
             os.chmod(launch_script_path, os.stat(launch_script_path).st_mode | stat.S_IEXEC)
-            subprocess.run([launch_script_path], cwd=dbt_dir, check=True)
+            try:
+                subprocess.run([launch_script_path], cwd=dbt_dir, check=True)
+            except subprocess.CalledProcessError as e:
+                pytest.fail("DBT run failure", pytrace=False)
         case "trino":
             launch_script_path = os.path.join(scripts_dir, "launch_dbt_kubernetes.sh")
             os.chmod(launch_script_path, os.stat(launch_script_path).st_mode | stat.S_IEXEC)
