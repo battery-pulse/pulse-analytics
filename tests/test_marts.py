@@ -9,16 +9,20 @@ def get_dataframe(cursor, query):
     return pd.DataFrame(data=data, columns=columns)
 
 
-device_marts = [  # source, metadata, mart
+mart_triplets = [  # source, metadata, mart
+    # device marts
     ("analytics.telemetry", "analytics.device_metadata", "analytics.device_telemetry"),
     ("analytics.statistics_step", "analytics.device_metadata", "analytics.device_statistics_step"),
     ("analytics.statistics_cycle", "analytics.device_metadata", "analytics.device_statistics_cycle"),
+    # part marts
+    ("analytics.telemetry", "analytics.part_metadata", "analytics.part_telemetry"),
+    ("analytics.statistics_step", "analytics.part_metadata", "analytics.part_statistics_step"),
+    ("analytics.statistics_cycle", "analytics.part_metadata", "analytics.part_statistics_cycle"),
 ]
 
 
-@pytest.mark.parametrize("source_table, metadata_table, mart_table", device_marts)
-def test_device_marts(database_cursor, source_table, metadata_table, mart_table):
-    # Fetch data from the source, metadata, and mart
+@pytest.mark.parametrize("source_table, metadata_table, mart_table", mart_triplets)
+def test_mart_columns(database_cursor, source_table, metadata_table, mart_table):
     source = get_dataframe(database_cursor, f"SELECT * FROM {source_table}")
     metadata = get_dataframe(database_cursor, f"SELECT * FROM {metadata_table}")
     mart = get_dataframe(database_cursor, f"SELECT * FROM {mart_table}")
@@ -35,32 +39,26 @@ def test_device_marts(database_cursor, source_table, metadata_table, mart_table)
         not missing_metadata_columns
     ), f"Mart table {mart_table} is missing columns from metadata: {missing_metadata_columns}"
 
+
+@pytest.mark.parametrize("source_table, metadata_table, mart_table", mart_triplets)
+def test_mart_metadata_behavior(database_cursor, source_table, metadata_table, mart_table):
+    source = get_dataframe(database_cursor, f"SELECT * FROM {source_table}")
+    metadata = get_dataframe(database_cursor, f"SELECT * FROM {metadata_table}")
+    mart = get_dataframe(database_cursor, f"SELECT * FROM {mart_table}")
+
     # Checks that source rows are not dropped if there are no corresponding metadata rows (left-join behavior)
-    missing_metadata_rows = set(source["device_id"]) - set(metadata["device_id"])
+    if "device" in mart_table:
+        missing_metadata_rows = set(source["device_id"]) - set(metadata["device_id"])
+    elif "part" in metadata_table:
+        missing_metadata_rows = set(mart["part_id"]) - set(metadata["part_id"])
+    else:
+        raise ValueError("Tests support device and part marts.") 
     assert missing_metadata_rows, f"Expecting missing metadata rows for {mart_table}."
     assert len(mart) == len(source), f"Row count in mart {mart_table} should match source table row count."
 
 
-def test_part_telemetry(database_cursor):
-    # Fetch data from the source, metadata, and mart
-    source = get_dataframe(database_cursor, "SELECT * FROM analytics.telemetry")
-    metadata = get_dataframe(database_cursor, "SELECT * FROM analytics.part_metadata")
+def test_part_telemetry_renumbering(database_cursor):
     mart = get_dataframe(database_cursor, "SELECT * FROM analytics.part_telemetry")
-
-    # Verifies that all source columns are present in the mart
-    missing_source_columns = set(source.columns) - set(mart.columns)
-    assert not missing_source_columns, f"Mart table is missing columns from source: {missing_source_columns}"
-
-    # Verifies that all metadata columns are present in the mart
-    missing_metadata_columns = set(metadata.columns) - set(mart.columns)
-    assert not missing_metadata_columns, f"Mart table is missing columns from metadata: {missing_metadata_columns}"
-
-    # Checks that source rows are not dropped if there are no corresponding metadata rows (left-join behavior)
-    missing_metadata_rows = set(mart["part_id"]) - set(metadata["part_id"])
-    assert missing_metadata_rows, "Expecting missing metadata rows for."
-    assert len(mart) == len(source), "Row count in mart should match source table row count."
-
-    # Check part-based cycle, step, and record numbers
     for _, i in mart.groupby("part_id"):
         # Case with two tests on a part
         if len(i) == 60:
@@ -82,26 +80,8 @@ def test_part_telemetry(database_cursor):
             raise Exception("Unexpected length of records.")
 
 
-def test_part_statistics_step(database_cursor):
-    # Fetch data from the source, metadata, and mart
-    source = get_dataframe(database_cursor, "SELECT * FROM analytics.statistics_step")
-    metadata = get_dataframe(database_cursor, "SELECT * FROM analytics.part_metadata")
+def test_part_statistics_step_renumbering(database_cursor):
     mart = get_dataframe(database_cursor, "SELECT * FROM analytics.part_statistics_step")
-
-    # Verifies that all source columns are present in the mart
-    missing_source_columns = set(source.columns) - set(mart.columns)
-    assert not missing_source_columns, f"Mart table is missing columns from source: {missing_source_columns}"
-
-    # Verifies that all metadata columns are present in the mart
-    missing_metadata_columns = set(metadata.columns) - set(mart.columns)
-    assert not missing_metadata_columns, f"Mart table is missing columns from metadata: {missing_metadata_columns}"
-
-    # Checks that source rows are not dropped if there are no corresponding metadata rows (left-join behavior)
-    missing_metadata_rows = set(mart["part_id"]) - set(metadata["part_id"])
-    assert missing_metadata_rows, "Expecting missing metadata rows for."
-    assert len(mart) == len(source), "Row count in mart should match source table row count."
-
-    # Check part-based cycle, step, and record numbers
     for _, i in mart.groupby("part_id"):
         # Case with two tests on a part
         if len(i) == 12:
@@ -119,26 +99,8 @@ def test_part_statistics_step(database_cursor):
             raise Exception("Unexpected length of records.")
 
 
-def test_part_statistics_cycle(database_cursor):
-    # Fetch data from the source, metadata, and mart
-    source = get_dataframe(database_cursor, "SELECT * FROM analytics.statistics_cycle")
-    metadata = get_dataframe(database_cursor, "SELECT * FROM analytics.part_metadata")
+def test_part_statistics_cycle_renumbering(database_cursor):
     mart = get_dataframe(database_cursor, "SELECT * FROM analytics.part_statistics_cycle")
-
-    # Verifies that all source columns are present in the mart
-    missing_source_columns = set(source.columns) - set(mart.columns)
-    assert not missing_source_columns, f"Mart table is missing columns from source: {missing_source_columns}"
-
-    # Verifies that all metadata columns are present in the mart
-    missing_metadata_columns = set(metadata.columns) - set(mart.columns)
-    assert not missing_metadata_columns, f"Mart table is missing columns from metadata: {missing_metadata_columns}"
-
-    # Checks that source rows are not dropped if there are no corresponding metadata rows (left-join behavior)
-    missing_metadata_rows = set(mart["part_id"]) - set(metadata["part_id"])
-    assert missing_metadata_rows, "Expecting missing metadata rows for."
-    assert len(mart) == len(source), "Row count in mart should match source table row count."
-
-    # Check part-based cycle, step, and record numbers
     for _, i in mart.groupby("part_id"):
         # Case with two tests on a part
         if len(i) == 4:
