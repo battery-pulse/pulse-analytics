@@ -26,15 +26,19 @@ lagged AS (
     WINDOW part_window AS (PARTITION BY part_id ORDER BY start_time, step_number)
 ),
 
-final_numbering AS (
+renumbered AS (
     -- Phase 3: Reindex cycle and step numbers
     SELECT
         *,
         SUM(CASE WHEN prev_cycle_number IS DISTINCT FROM cycle_number THEN 1 ELSE 0 END) OVER part_window AS part_cycle_number,
         ROW_NUMBER() OVER part_window AS part_step_number
     FROM lagged
-    WINDOW part_window AS (PARTITION BY part_id ORDER BY start_time, step_number)
+    WINDOW part_window AS (
+        PARTITION BY part_id
+        ORDER BY start_time, step_number
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    )
 )
 
 -- Final output
-SELECT * FROM final_numbering
+SELECT * FROM renumbered

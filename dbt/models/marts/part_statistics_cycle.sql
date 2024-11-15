@@ -17,14 +17,18 @@ WITH records_with_part AS (
         ON dpt.part_id = pm.part_id
 ),
 
-final_numbering AS (
+renumbered AS (
     -- Phase 3: Reindex cycle number
     SELECT
         *,
         ROW_NUMBER() OVER part_window AS part_cycle_number
     FROM records_with_part
-    WINDOW part_window AS (PARTITION BY part_id ORDER BY start_time, cycle_number)
+    WINDOW part_window AS (
+        PARTITION BY part_id
+        ORDER BY start_time, cycle_number
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    )
 )
 
 -- Final output
-SELECT * FROM final_numbering
+SELECT * FROM renumbered
