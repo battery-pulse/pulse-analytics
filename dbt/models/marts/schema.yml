@@ -1,0 +1,118 @@
+version: 2
+
+models:
+  - name: test_telemetry
+    description: "Telemetry data at the test level"
+    columns:
+      - name: recipe_id
+        description: "Unique identifier for the test recipe associated with the telemetry data"
+      - name: device_id
+        description: "Unique identifier for the device associated with the telemetry data"
+        tests:
+          - not_null
+      - name: test_id
+        description: "Unique identifier for the test associated with the telemetry data"
+        tests:
+          - not_null
+
+  - name: test_statistics_step
+    description: "Step-level statistics aggregated at the test level"
+    columns:
+      - name: recipe_id
+        description: "Unique identifier for the test recipe associated with the step data"
+      - name: device_id
+        description: "Unique identifier for the device associated with the step data"
+        tests:
+          - not_null
+      - name: test_id
+        description: "Unique identifier for the test associated with the step data"
+        tests:
+          - not_null
+
+  - name: test_statistics_cycle
+    description: "Cycle-level statistics aggregated at the test level"
+    columns:
+      - name: recipe_id
+        description: "Unique identifier for the test recipe associated with the cycle data"
+      - name: device_id
+        description: "Unique identifier for the device associated with the cycle data"
+        tests:
+          - not_null
+      - name: test_id
+        description: "Unique identifier for the test associated with the cycle data"
+        tests:
+          - not_null
+
+  - name: part_telemetry
+    description: "Telemetry data at the part level"
+    columns:
+      - name: part_id
+        description: "Unique identifier for the part under test"
+        tests:
+          - not_null
+      - name: recipe_id
+        description: "Unique identifier for the test recipe associated with the telemetry data"
+      - name: device_id
+        description: "Unique identifier for the device associated with the telemetry data"
+        tests:
+          - not_null
+      - name: test_id
+        description: "Unique identifier for each test performed on the part"
+        tests:
+          - not_null
+      - name: part_cycle_number
+        description: "Cycle number for the part, reindexed across all tests for the part"
+        tests:
+          - not_null
+      - name: part_step_number
+        description: "Step number for the part, reindexed across all tests for the part"
+        tests:
+          - not_null
+      - name: part_record_number
+        description: "Sequential record number, reindexed across all tests for the part"
+        tests:
+          - not_null
+      - name: timestamp
+        description: "Timestamp for the telemetry record"
+        tests:
+          - not_null
+
+  - name: part_statistics_step
+    description: "Step-level statistics aggregated at the part level"
+    columns:
+      - name: part_id
+        description: "Unique identifier for the part under test"
+        tests:
+          - not_null
+      - name: recipe_id
+        description: "Unique identifier for the test recipe associated with the step data"
+      - name: part_cycle_number
+        description: "Cycle number for the part, reindexed across all tests for the part"
+        tests:
+          - not_null
+      - name: part_step_number
+        description: "Step number for the part, reindexed across all tests for the part"
+        tests:
+          - not_null
+      - name: start_time
+        description: "Start time for the step"
+        tests:
+          - not_null
+
+  - name: part_statistics_cycle
+    description: "Cycle-level statistics aggregated at the part level"
+    columns:
+      - name: part_id
+        description: "Unique identifier for the part under test"
+        tests:
+          - not_null
+      - name: recipe_id
+        description: "Unique identifier for the test recipe associated with the cycle data"
+      - name: part_cycle_number
+        description: "Cycle number for the part, reindexed across all tests for the part"
+        tests:
+          - not_null
+      - name: start_time
+        description: "Start time for the cycle"
+        tests:
+          - not_null

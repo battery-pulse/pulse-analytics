@@ -1,0 +1,14 @@
+pulse_analytics:
+  outputs:
+    trino:
+      type: trino
+      host: "{{ env_var('PULSE_ANALYTICS_TRINO_HOST') }}"
+      port: "{{ env_var('PULSE_ANALYTICS_TRINO_PORT') }}"
+      user: "{{ env_var('PULSE_ANALYTICS_TRINO_USER') }}"
+      catalog: "{{ env_var('PULSE_ANALYTICS_TARGET_CATALOG') }}"
+      schema: "{{ env_var('PULSE_ANALYTICS_TARGET_SCHEMA') }}"
+
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('PULSE_ANALYTICS_DUCKDB_PATH') }}"  # Implicitly, the catalog is the file name w/o extension
+      schema: "{{ env_var('PULSE_ANALYTICS_TARGET_SCHEMA') }}"

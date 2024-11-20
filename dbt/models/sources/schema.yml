@@ -1,0 +1,151 @@
+version: 2
+
+sources:
+  # Pulse-telemetry tables
+  - name: telemetry_source
+    database: "{{ env_var('PULSE_ANALYTICS_TELEMETRY_CATALOG') }}"
+    schema: "{{ env_var('PULSE_ANALYTICS_TELEMETRY_SCHEMA') }}"
+    tables:
+      - name: telemetry
+        identifier: "{{ env_var('PULSE_ANALYTICS_TELEMETRY_TABLE') }}"
+        description: "Individual records of telemetry data"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+          - name: test_id
+            description: "Unique identifier for each test"
+            tests:
+              - not_null
+          - name: cycle_number
+            description: "Cycle number within a test sequence"
+            tests:
+              - not_null
+          - name: step_number
+            description: "Step number within a test sequence"
+            tests:
+              - not_null
+          - name: record_number
+            description: "Record number within a test sequence"
+            tests:
+              - not_null
+          - name: timestamp
+            description: "Timestamp for the telemetry record"
+            tests:
+              - not_null
+
+      - name: statistics_step
+        identifier: "{{ env_var('PULSE_ANALYTICS_STATISTICS_STEP_TABLE') }}"
+        description: "Step-level statistics for telemetry data"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+          - name: test_id
+            description: "Unique identifier for each test"
+            tests:
+              - not_null
+          - name: cycle_number
+            description: "Cycle number within a test sequence"
+            tests:
+              - not_null
+          - name: step_number
+            description: "Step number within a test sequence"
+            tests:
+              - not_null
+          - name: start_time
+            description: "Start time for the step"
+            tests:
+              - not_null
+
+      - name: statistics_cycle
+        identifier: "{{ env_var('PULSE_ANALYTICS_STATISTICS_CYCLE_TABLE') }}"
+        description: "Cycle-level statistics for telemetry data"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+          - name: test_id
+            description: "Unique identifier for each test"
+            tests:
+              - not_null
+          - name: cycle_number
+            description: "Cycle number within a test sequence"
+            tests:
+              - not_null
+          - name: start_time
+            description: "Start time for the cycle"
+            tests:
+              - not_null
+
+  # Metadata tables
+  - name: metadata_source
+    database: "{{ env_var('PULSE_ANALYTICS_METADATA_CATALOG') }}"
+    schema: "{{ env_var('PULSE_ANALYTICS_METADATA_SCHEMA') }}"
+    tables:
+      - name: device_metadata
+        identifier: "{{ env_var('PULSE_ANALYTICS_DEVICE_METADATA_TABLE') }}"
+        description: "Metadata for each test device"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+              - unique
+
+      - name: part_metadata
+        identifier: "{{ env_var('PULSE_ANALYTICS_PART_METADATA_TABLE') }}"
+        description: "Metadata for each part under test"
+        columns:
+          - name: part_id
+            description: "Unique identifier for each part"
+            tests:
+              - not_null
+              - unique
+
+      - name: recipe_metadata
+        identifier: "{{ env_var('PULSE_ANALYTICS_RECIPE_METADATA_TABLE') }}"
+        description: "Metadata that describes the conditions of each test recipe"
+        columns:
+          - name: recipe_id
+            description: "Unique identifier for each test recipe"
+            tests:
+              - not_null
+              - unique
+
+      - name: device_test_part
+        identifier: "{{ env_var('PULSE_ANALYTICS_DEVICE_TEST_PART_TABLE') }}"
+        description: "Links tests to parts under test"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+          - name: test_id
+            description: "Unique identifier for each test"
+            tests:
+              - not_null
+          - name: part_id
+            description: "Unique identifier for each part involved in tests"
+            tests:
+              - not_null
+
+      - name: device_test_recipe
+        identifier: "{{ env_var('PULSE_ANALYTICS_DEVICE_TEST_RECIPE_TABLE') }}"
+        description: "Links tests to test recipes"
+        columns:
+          - name: device_id
+            description: "Unique identifier for the device"
+            tests:
+              - not_null
+          - name: test_id
+            description: "Unique identifier for each test"
+            tests:
+              - not_null
+          - name: recipe_id
+            description: "Unique identifier for each test recipe"
+            tests:
+              - not_null
