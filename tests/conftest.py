@@ -53,7 +53,9 @@ def duckdb_environment():
     os.environ["PULSE_ANALYTICS_METADATA_SCHEMA"] = "metadata"
     os.environ["PULSE_ANALYTICS_DEVICE_METADATA_TABLE"] = "device_metadata"
     os.environ["PULSE_ANALYTICS_PART_METADATA_TABLE"] = "part_metadata"
-    os.environ["PULSE_ANALYTICS_DEVICE_PART_TESTS_TABLE"] = "device_part_tests"
+    os.environ["PULSE_ANALYTICS_RECIPE_METADATA_TABLE"] = "recipe_metadata"
+    os.environ["PULSE_ANALYTICS_DEVICE_TEST_PART_TABLE"] = "device_test_part"
+    os.environ["PULSE_ANALYTICS_DEVICE_TEST_RECIPE_TABLE"] = "device_test_recipe"
 
 
 def trino_environment():
@@ -101,7 +103,7 @@ def telemetry_sources(num_channels):
 
 
 def metadata_sources(statistics_cycle_first, statistics_cycle_second):
-    # device-part-tests
+    # device-test-part
     first_devices = statistics_cycle_first["device_id"].unique()
     first_tests = statistics_cycle_first["test_id"].unique()
     first_parts = list(range(len(first_tests)))
@@ -122,16 +124,38 @@ def metadata_sources(statistics_cycle_first, statistics_cycle_second):
             "part_id": second_parts,
         }
     )
-    device_part_tests = pd.concat([first_df, second_df], ignore_index=True)
+    device_test_part = pd.concat([first_df, second_df], ignore_index=True)
+    # device-test-recipe
+    first_recipes = list(range(len(first_tests)))
+    first_df = pd.DataFrame(
+        {
+            "device_id": first_devices,
+            "test_id": first_tests,
+            "recipe_id": first_recipes,
+        }
+    )
+    second_recipes = list(range(len(second_tests)))
+    second_df = pd.DataFrame(
+        {
+            "device_id": second_devices,
+            "test_id": second_tests,
+            "recipe_id": second_recipes,
+        }
+    )
+    device_test_recipe = pd.concat([first_df, second_df], ignore_index=True)
     # device-metadata
-    devices = device_part_tests["device_id"].unique()[:-1]  # incomplete metadata
+    devices = device_test_part["device_id"].unique()[:-1]  # incomplete metadata
     device_values = list(range(len(devices)))
     device_metadata = pd.DataFrame({"device_id": devices, "device_value": device_values})
     # part-metadata
-    parts = device_part_tests["part_id"].unique()[:-1]  # incomplete metadata
+    parts = device_test_part["part_id"].unique()[:-1]  # incomplete metadata
     part_values = list(range(len(parts)))
     part_metadata = pd.DataFrame({"part_id": parts, "part_value": part_values})
-    return device_part_tests, device_metadata, part_metadata
+    # recipe-metadata
+    recipes = device_test_recipe["recipe_id"].unique()[:-1]  # incomplete metadata
+    recipe_values = list(range(len(recipes)))
+    recipe_metadata = pd.DataFrame({"recipe_id": recipes, "recipe_value": recipe_values})
+    return device_test_part, device_test_recipe, device_metadata, part_metadata, recipe_metadata
 
 
 def seed_duckdb():
@@ -149,13 +173,15 @@ def seed_duckdb():
     cursor.execute("INSERT INTO telemetry.statistics_step SELECT * FROM statistics_step_df_second")
     cursor.execute("INSERT INTO telemetry.statistics_cycle SELECT * FROM statistics_cycle_df_second")
     # Metadata (incomplete metadata on parts and devices)
-    device_part_tests, device_metadata, part_metadata = metadata_sources(
+    device_test_part, device_test_recipe, device_metadata, part_metadata, recipe_metadata = metadata_sources(
         statistics_cycle_df, statistics_cycle_df_second
     )
     cursor.execute("CREATE SCHEMA IF NOT EXISTS metadata")
-    cursor.execute("CREATE TABLE metadata.device_part_tests AS SELECT * FROM device_part_tests")
+    cursor.execute("CREATE TABLE metadata.device_test_part AS SELECT * FROM device_test_part")
+    cursor.execute("CREATE TABLE metadata.device_test_recipe AS SELECT * FROM device_test_recipe")
     cursor.execute("CREATE TABLE metadata.device_metadata AS SELECT * FROM device_metadata")
     cursor.execute("CREATE TABLE metadata.part_metadata AS SELECT * FROM part_metadata")
+    cursor.execute("CREATE TABLE metadata.recipe_metadata AS SELECT * FROM recipe_metadata")
     # Close connection before running DBT
     conn.commit()
     conn.close()
@@ -182,7 +208,7 @@ def launch_dbt(dbt_target, seed_database):
             os.chmod(launch_script_path, os.stat(launch_script_path).st_mode | stat.S_IEXEC)
             try:
                 subprocess.run([launch_script_path], cwd=dbt_dir, check=True)
-            except subprocess.CalledProcessError as e:
+            except subprocess.CalledProcessError:
                 pytest.fail("DBT run failure", pytrace=False)
         case "trino":
             launch_script_path = os.path.join(scripts_dir, "launch_dbt_kubernetes.sh")

@@ -1,27 +1,27 @@
 version: 2
 
 models:
-  - name: device_telemetry
-    description: "Telemetry data at the device level"
+  - name: test_telemetry
+    description: "Telemetry data at the test level"
     columns:
-      - name: device_id
-        description: "Unique identifier for the device associated with the telemetry data"
+      - name: test_id
+        description: "Unique identifier for the test associated with the telemetry data"
         tests:
           - not_null
 
-  - name: device_statistics_step
-    description: "Step-level statistics aggregated at the device level"
+  - name: test_statistics_step
+    description: "Step-level statistics aggregated at the test level"
     columns:
-      - name: device_id
-        description: "Unique identifier for the device associated with the step data"
+      - name: test_id
+        description: "Unique identifier for the test associated with the step data"
         tests:
           - not_null
 
-  - name: device_statistics_cycle
-    description: "Cycle-level statistics aggregated at the device level"
+  - name: test_statistics_cycle
+    description: "Cycle-level statistics aggregated at the test level"
     columns:
-      - name: device_id
-        description: "Unique identifier for the device associated with the cycle data"
+      - name: test_id
+        description: "Unique identifier for the test associated with the cycle data"
         tests:
           - not_null
 

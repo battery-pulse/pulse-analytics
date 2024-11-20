@@ -4,9 +4,11 @@ source_views = [  # source, view
     ("telemetry.telemetry", "analytics.telemetry"),
     ("telemetry.statistics_step", "analytics.statistics_step"),
     ("telemetry.statistics_cycle", "analytics.statistics_cycle"),
-    ("metadata.device_part_tests", "analytics.device_part_tests"),
+    ("metadata.device_test_part", "analytics.device_test_part"),
+    ("metadata.device_test_recipe", "analytics.device_test_recipe"),
     ("metadata.device_metadata", "analytics.device_metadata"),
     ("metadata.part_metadata", "analytics.part_metadata"),
+    ("metadata.recipe_metadata", "analytics.recipe_metadata"),
 ]
 
 

@@ -3,14 +3,14 @@
 ) }}
 
 
-WITH records_with_part AS (
+WITH test_with_part AS (
     -- Phase 1: Join records with device_part_tests and part_metadata
     SELECT
         dpt.part_id,
-        t.*,  -- All columns from statistics_step
+        t.*,  -- All columns from test
         pm.*  -- All columns from part_metadata
-    FROM {{ ref('statistics_step') }} AS t
-    INNER JOIN {{ ref('device_part_tests') }} AS dpt
+    FROM {{ ref('test_statistics_step') }} AS t
+    INNER JOIN {{ ref('device_test_part') }} AS dpt
         ON t.device_id = dpt.device_id
         AND t.test_id = dpt.test_id
     LEFT JOIN {{ ref('part_metadata') }} AS pm  -- Keep rows without part metadata
@@ -22,7 +22,7 @@ lagged AS (
     SELECT
         *,
         LAG(cycle_number) OVER part_window AS prev_cycle_number
-    FROM records_with_part
+    FROM test_with_part
     WINDOW part_window AS (PARTITION BY part_id ORDER BY start_time, step_number)
 ),
 

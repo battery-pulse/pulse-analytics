@@ -5,5 +5,5 @@
 SELECT
     device_id,
     test_id,
-    part_id
-FROM {{ source('metadata_source', 'device_part_tests') }}
+    recipe_id
+FROM {{ source('metadata_source', 'device_test_recipe') }}
