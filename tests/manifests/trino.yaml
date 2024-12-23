@@ -1,0 +1,80 @@
+---
+apiVersion: trino.stackable.tech/v1alpha1
+kind: TrinoCluster
+metadata:
+  name: trino-cluster
+spec:
+  image:
+    productVersion: "451"
+  clusterConfig:
+    catalogLabelSelector:
+      matchLabels:
+        trino: trino
+    listenerClass: cluster-internal
+    authentication:
+      - authenticationClass: trino-users
+  coordinators:
+    roleGroups:
+      default:
+        replicas: 1
+    podOverrides:
+      spec:
+        initContainers:
+        - name: prepare
+          resources:
+            requests:
+              memory: "512Mi"
+        containers:
+        - name: trino
+          resources:
+            requests:
+              memory: "512Mi"
+  workers:
+    roleGroups:
+      default:
+        replicas: 1
+    podOverrides:
+      spec:
+        initContainers:
+        - name: prepare
+          resources:
+            requests:
+              memory: "512Mi"
+        containers:
+        - name: trino
+          resources:
+            requests:
+              memory: "512Mi"
+---
+apiVersion: trino.stackable.tech/v1alpha1
+kind: TrinoCatalog
+metadata:
+  name: lakehouse
+  labels:
+    trino: trino
+spec:
+  connector:
+    iceberg:
+      metastore:
+        configMap: hive
+      s3:
+        reference: minio
+---
+apiVersion: authentication.stackable.tech/v1alpha1
+kind: AuthenticationClass
+metadata:
+  name: trino-users
+spec:
+  provider:
+    static:
+      userCredentialsSecret:
+        name: trino-users
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trino-users
+type: kubernetes.io/opaque
+stringData:
+  admin: admin
+---

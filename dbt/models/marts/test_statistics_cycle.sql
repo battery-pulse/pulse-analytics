@@ -6,8 +6,8 @@
 SELECT
     dtr.recipe_id,  -- Prefix table with test recipe
     t.*,  -- Select all columns from telemetry
-    dm.*, -- Select all columns from device_metadata
-    rm.*  -- Select all columns from recipe_metadata
+    {{ prefix_columns('device_metadata', 'dm') }}, -- Select all columns from device_metadata
+    {{ prefix_columns('recipe_metadata', 'rm') }}  -- Select all columns from recipe_metadata
 FROM {{ ref('statistics_cycle') }} AS t
 LEFT JOIN {{ ref('device_metadata') }} AS dm  -- Don't drop rows with no device metadata
     ON t.device_id = dm.device_id

@@ -8,7 +8,7 @@ WITH test_with_part AS (
     SELECT
         dpt.part_id,
         t.*,  -- All columns from test
-        pm.*  -- All columns from part_metadata
+        {{ prefix_columns('part_metadata', 'pm') }} -- Select all columns from part_metadata
     FROM {{ ref('test_statistics_cycle') }} AS t
     INNER JOIN {{ ref('device_test_part') }} AS dpt
         ON t.device_id = dpt.device_id

@@ -20,6 +20,8 @@ dev = [
     "pytest==8.2.2",
     "ruff==0.5.2",
     "setuptools==75.1.0",
+    "sqlalchemy==2.0.36",
+    "sqlalchemy-trino==0.5.0",
     "pulse-telemetry==0.1.1",
 ]
 

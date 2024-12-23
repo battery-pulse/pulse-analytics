@@ -55,7 +55,8 @@ def test_mart_columns(database_cursor, source_table, metadata_tables, mart_table
     # Verifies that all metadata columns are present in the mart
     for i in metadata_tables:
         metadata = get_dataframe(database_cursor, f"SELECT * FROM {i}")
-        missing_metadata_columns = set(metadata.columns) - set(mart.columns)
+        mart_columns_without_prefix = [i[4:] for i in mart.columns]
+        missing_metadata_columns = set(metadata.columns) - set(mart_columns_without_prefix)
         assert (
             not missing_metadata_columns
         ), f"Mart table {mart_table} is missing columns from metadata: {missing_metadata_columns}"
