@@ -14,5 +14,5 @@ pulse_analytics:
 
     duckdb:
       type: duckdb
-      path: "{{ env_var('PULSE_ANALYTICS_DUCKDB_PATH') }}"  # Implicitly, the catalog is the file name w/o extension
+      path: "{{ env_var('PULSE_ANALYTICS_DUCKDB_PATH') }}"  # The catalog is the file name w/o extension
       schema: "{{ env_var('PULSE_ANALYTICS_TARGET_SCHEMA') }}"
