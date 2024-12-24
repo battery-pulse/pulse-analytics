@@ -6,7 +6,7 @@ import duckdb
 import pandas as pd
 import pytest
 import trino.dbapi
-from pulse_telemetry.sparklib import statistics_cycle, statistics_step, telemetry, iceberg
+from pulse_telemetry.sparklib import iceberg, statistics_cycle, statistics_step, telemetry
 from pulse_telemetry.utils import channel, telemetry_generator
 from pyspark.sql import SparkSession
 from sqlalchemy import create_engine, text
@@ -78,7 +78,9 @@ def setup_environment(dbt_target):
         case "trino":
             trino_environment()
             trino_forward = subprocess.Popen(
-                ["kubectl", "port-forward", "svc/trino-cluster-coordinator", "8443:8443"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                ["kubectl", "port-forward", "svc/trino-cluster-coordinator", "8443:8443"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
             minio_forward = subprocess.Popen(
                 ["kubectl", "port-forward", "svc/minio", "9000:9000"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -213,7 +215,9 @@ def seed_duckdb(spark):
     cursor.execute("CREATE TABLE telemetry.statistics_step AS SELECT * FROM statistics_step_df")
     cursor.execute("CREATE TABLE telemetry.statistics_cycle AS SELECT * FROM statistics_cycle_df")
     # Second set of tests (one part is not put back on test)
-    telemetry_df_second, statistics_step_df_second, statistics_cycle_df_second = telemetry_sources(num_channels=4, spark=spark)
+    telemetry_df_second, statistics_step_df_second, statistics_cycle_df_second = telemetry_sources(
+        num_channels=4, spark=spark
+    )
     telemetry_df_second = telemetry_df_second.toPandas()
     statistics_step_df_second = statistics_step_df_second.toPandas()
     statistics_cycle_df_second = statistics_cycle_df_second.toPandas()
@@ -236,42 +240,70 @@ def seed_duckdb(spark):
 
 
 def seed_trino(spark):
-
-    # Generate the first set of test data (5 parts)
+    # Generate the test data (2 sets of tests)
     telemetry_df, statistics_step_df, statistics_cycle_df = telemetry_sources(num_channels=5, spark=spark)
-    telemetry_df_second, statistics_step_df_second, statistics_cycle_df_second = telemetry_sources(num_channels=4, spark=spark)
-
-    # Load data using pyspark
-    iceberg.create_table_if_not_exists(
-        spark,
-        "lakehouse",
-        "telemetry",
-        "telemetry",
-        telemetry.telemetry_comment,
-        telemetry.telemetry_schema
+    telemetry_df_second, statistics_step_df_second, statistics_cycle_df_second = telemetry_sources(
+        num_channels=4, spark=spark
     )
-    iceberg.merge_into_table(spark, telemetry_df, "lakehouse", "telemetry", "telemetry", telemetry.telemetry_composite_key)
-    iceberg.merge_into_table(spark, telemetry_df_second, "lakehouse", "telemetry", "telemetry", telemetry.telemetry_composite_key)
+
+    # Load telemetry data
+    iceberg.create_table_if_not_exists(
+        spark, "lakehouse", "telemetry", "telemetry", telemetry.telemetry_comment, telemetry.telemetry_schema
+    )
+    iceberg.merge_into_table(
+        spark, telemetry_df, "lakehouse", "telemetry", "telemetry", telemetry.telemetry_composite_key
+    )
+    iceberg.merge_into_table(
+        spark, telemetry_df_second, "lakehouse", "telemetry", "telemetry", telemetry.telemetry_composite_key
+    )
     iceberg.create_table_if_not_exists(
         spark,
         "lakehouse",
         "telemetry",
         "statistics_step",
         statistics_step.statistics_step_comment,
-        statistics_step.statistics_step_schema
+        statistics_step.statistics_step_schema,
     )
-    iceberg.merge_into_table(spark, statistics_step_df, "lakehouse", "telemetry", "statistics_step", statistics_step.statistics_step_composite_key)
-    iceberg.merge_into_table(spark, statistics_step_df_second, "lakehouse", "telemetry", "statistics_step", statistics_step.statistics_step_composite_key)
+    iceberg.merge_into_table(
+        spark,
+        statistics_step_df,
+        "lakehouse",
+        "telemetry",
+        "statistics_step",
+        statistics_step.statistics_step_composite_key,
+    )
+    iceberg.merge_into_table(
+        spark,
+        statistics_step_df_second,
+        "lakehouse",
+        "telemetry",
+        "statistics_step",
+        statistics_step.statistics_step_composite_key,
+    )
     iceberg.create_table_if_not_exists(
         spark,
         "lakehouse",
         "telemetry",
         "statistics_cycle",
         statistics_cycle.statistics_cycle_comment,
-        statistics_cycle.statistics_cycle_schema
+        statistics_cycle.statistics_cycle_schema,
     )
-    iceberg.merge_into_table(spark, statistics_cycle_df, "lakehouse", "telemetry", "statistics_cycle", statistics_cycle.statistics_cycle_composite_key)
-    iceberg.merge_into_table(spark, statistics_cycle_df_second, "lakehouse", "telemetry", "statistics_cycle", statistics_cycle.statistics_cycle_composite_key)
+    iceberg.merge_into_table(
+        spark,
+        statistics_cycle_df,
+        "lakehouse",
+        "telemetry",
+        "statistics_cycle",
+        statistics_cycle.statistics_cycle_composite_key,
+    )
+    iceberg.merge_into_table(
+        spark,
+        statistics_cycle_df_second,
+        "lakehouse",
+        "telemetry",
+        "statistics_cycle",
+        statistics_cycle.statistics_cycle_composite_key,
+    )
 
     # Generate metadata (based on first and second tests)
     device_test_part, device_test_recipe, device_metadata, part_metadata, recipe_metadata = metadata_sources(
@@ -280,11 +312,11 @@ def seed_trino(spark):
 
     # Load metadata tables
     engine = create_engine(
-        f"trino://admin:admin@localhost:8443/lakehouse",
+        "trino://admin:admin@localhost:8443/lakehouse",
         connect_args={
             "http_scheme": "https",  # Use "http" if Trino doesn't use SSL
-            "verify": False          # For production, provide CA path: "path/to/ca.crt"
-        }
+            "verify": False,  # For production, provide CA path: "path/to/ca.crt"
+        },
     )
     with engine.connect() as conn:
         conn.execute(text("CREATE SCHEMA IF NOT EXISTS metadata"))
@@ -348,7 +380,7 @@ def database_cursor(dbt_target, launch_dbt):
                 verify=False,
                 user="admin",
                 catalog="lakehouse",
-                auth=trino.auth.BasicAuthentication("admin", "admin")
+                auth=trino.auth.BasicAuthentication("admin", "admin"),
             )
             yield conn.cursor()
             conn.close()

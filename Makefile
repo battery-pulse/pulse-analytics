@@ -26,7 +26,7 @@ test-integration:
 
 .PHONY: test-e2e
 test-e2e:
-	pytest tests/ --dbt-target=trino
+	pytest tests/ -s --log-cli-level=INFO --dbt-target=trino
 
 .PHONY: docker-image
 docker-image:

@@ -48,7 +48,7 @@ Coming soon...
 
 - **Integration Tests**: Integration tests run on DuckDB to validate data transformations, DBT model execution, and data quality checks. Test setup and teardown is lightweight and fast.
 
-- **End-to-End Tests**: End-to-end tests perform the same checks as integration tests but use Trino as the backend. This setup provides a production-like environment, where telemetry, metadata, and the DBT targets reside in separate data catalogs.
+- **End-to-End Tests**: End-to-end tests perform the same checks as integration tests but use Trino as the backend. This setup provides a production-like environment, where telemetry, metadata, and the DBT targets may reside in separate data catalogs.
 
 ### DBT Project Configuration
 

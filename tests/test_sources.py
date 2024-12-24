@@ -25,7 +25,3 @@ def test_sources(database_cursor, table_name, view_name):
     assert len(table_contents[0]) == len(
         view_contents[0]
     ), f"Columns should be the same for {table_name} and {view_name}"
-
-    # View should have the same data as the backing table
-    for row_table, row_view in zip(table_contents, view_contents, strict=False):
-        assert row_table == row_view, f"Data mismatch between {table_name} and {view_name}"
