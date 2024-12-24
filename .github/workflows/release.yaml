@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read      # Required to access repository content
+      packages: write     # Required for docker image
+      id-token: write     # Required for PyPI
+    steps:
+      - uses: actions/checkout@v2
+
+      # - name: Set up Python
+      #   uses: actions/setup-python@v2
+      #   with:
+      #     python-version: "3.11"
+
+      - name: Get Release Version
+        id: get_version
+        run: echo "package_version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      # - name: Build Python Package
+      #   env:
+      #     PACKAGE_VERSION: ${{ env.package_version }}
+      #   run: |
+      #     pip install --upgrade pip
+      #     pip install build twine
+      #     sed -i "s/__version__ = .*/__version__ = \"$PACKAGE_VERSION\"/" src/pulse_telemetry/__init__.py
+      #     python -m build
+
+      # - name: Publish Python Package
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     package_dir: dist
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/battery-pulse/pulse-analytics:${{ env.package_version }} -t ghcr.io/battery-pulse/pulse-analytics:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/battery-pulse/pulse-analytics:${{ env.package_version }}
+          docker push ghcr.io/battery-pulse/pulse-analytics:latest

@@ -1,0 +1,61 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dbt-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: dbt
+        image: pulse-analytics:latest
+        imagePullPolicy: Never
+        envFrom:
+        - configMapRef:
+            name: dbt-config
+        - secretRef:
+            name: trino-users
+        env:
+        - name: PULSE_ANALYTICS_TRINO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: trino-users
+              key: admin
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbt-config
+data:
+  # Trino connection
+  PULSE_ANALYTICS_TRINO_HOST: "trino-cluster-coordinator.default.svc.cluster.local"
+  PULSE_ANALYTICS_TRINO_PORT: "8443"
+  PULSE_ANALYTICS_TRINO_USER: "admin"
+
+  # Target catalog
+  PULSE_ANALYTICS_TARGET_CATALOG: "lakehouse"
+  PULSE_ANALYTICS_TARGET_SCHEMA: "analytics"
+
+  # Telemetry sources
+  PULSE_ANALYTICS_TELEMETRY_CATALOG: "lakehouse"
+  PULSE_ANALYTICS_TELEMETRY_SCHEMA: "telemetry"
+  PULSE_ANALYTICS_TELEMETRY_TABLE: "telemetry"
+  PULSE_ANALYTICS_STATISTICS_STEP_TABLE: "statistics_step"
+  PULSE_ANALYTICS_STATISTICS_CYCLE_TABLE: "statistics_cycle"
+
+  # Metadata sources
+  PULSE_ANALYTICS_METADATA_CATALOG: "lakehouse"
+  PULSE_ANALYTICS_METADATA_SCHEMA: "metadata"
+  PULSE_ANALYTICS_DEVICE_METADATA_TABLE: "device_metadata"
+  PULSE_ANALYTICS_RECIPE_METADATA_TABLE: "recipe_metadata"
+  PULSE_ANALYTICS_DEVICE_TEST_RECIPE_TABLE: "device_test_recipe"
+  PULSE_ANALYTICS_PART_METADATA_TABLE: "part_metadata"
+  PULSE_ANALYTICS_DEVICE_TEST_PART_TABLE: "device_test_part"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trino-users
+type: kubernetes.io/opaque
+stringData:
+  admin: admin
